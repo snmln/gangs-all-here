@@ -8,13 +8,14 @@ const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
 
 // Objects
-const geometry = new THREE.TorusGeometry( .7, .2, 16, 100 );
-const tourous = new THREE.Mesh(geometry)
+const torousGeometry = new THREE.TorusGeometry( .7, .2, 16, 100 );
+let torousMaterial = new THREE.MeshBasicMaterial({color: 0xeeeee4});
+const tourous = new THREE.Mesh(torousGeometry, torousMaterial)
 
     let floorGeometry = new THREE.BoxGeometry(50, 1, 50);
     let material = new THREE.MeshBasicMaterial({color: 0xff0000});
-    const floor = new THREE.Mesh( floorGeometry );
-    floor.position.set(0, -1, 0);
+    const floor = new THREE.Mesh( floorGeometry, material );
+    floor.position.set(0, -1.5, 0);
 
 // Mesh
 scene.add(tourous)
@@ -49,7 +50,6 @@ const renderer = new THREE.WebGLRenderer({
     canvas: canvas,
    
 })
-console.log('sizes.width', sizes.width, 'sizes.height', sizes.height)
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 renderer.render(scene, camera)
