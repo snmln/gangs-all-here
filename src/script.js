@@ -1,6 +1,7 @@
 import "./style.css";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { GUI } from "dat.gui";
 
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
@@ -33,6 +34,11 @@ scene.add(dodecahedron);
 scene.add(tourous);
 scene.add(floor);
 
+// var geo = new THREE.EdgesGeometry(sphere.geometry); // or WireframeGeometry
+// var mat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
+// var wireframe = new THREE.LineSegments(geo, mat);
+// sphere.add(wireframe);
+
 const sizes = {
   //This is not dynamic we will have to establish an event listener to listen for
   width: window.innerWidth,
@@ -52,7 +58,7 @@ const camera = new THREE.PerspectiveCamera(
 );
 camera.position.x = 0;
 camera.position.y = 0;
-camera.position.z = 2;
+camera.position.z = 5;
 scene.add(camera);
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
@@ -82,6 +88,20 @@ controls.enableDamping = true;
  * Renderer
  */
 //We need to instantiate an instance of WEBGL to render all of our elements.
+const gui = new GUI();
+const lightOne = gui.addFolder("Light One");
+lightOne.add(pointLight.position, "x");
+lightOne.add(pointLight.position, "y");
+lightOne.add(pointLight.position, "z");
+
+lightOne.open();
+
+const lightTwo = gui.addFolder("Light Two");
+
+lightTwo.add(backLight.position, "x");
+lightTwo.add(backLight.position, "y");
+lightTwo.add(backLight.position, "z");
+lightTwo.open();
 
 function animate() {
   requestAnimationFrame(animate);
