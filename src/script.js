@@ -7,19 +7,26 @@ import { GUI } from "dat.gui";
 const canvas = document.querySelector("canvas.webgl");
 // Scene
 const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xc2f2f0);
 
 // Objects
 const torousGeometry = new THREE.TorusGeometry(0.7, 0.2, 16, 100);
-let torousMaterial = new THREE.MeshLambertMaterial({ color: 0xeeeee4 });
+let torousMaterial = new THREE.MeshToonMaterial({
+  color: 0xeeeee4,
+});
 const tourous = new THREE.Mesh(torousGeometry, torousMaterial);
 
 const sphereGeo = new THREE.SphereGeometry(1, 32, 16);
-let sphereMaterial = new THREE.MeshLambertMaterial({ color: 0xeeeee4 });
+let sphereMaterial = new THREE.MeshLambertMaterial({
+  color: 0xff5733,
+});
 const sphere = new THREE.Mesh(sphereGeo, sphereMaterial);
 sphere.position.set(-3, 0, 0);
 
 const dodecahedronGeo = new THREE.DodecahedronGeometry(1);
-let dodecahedronMaterial = new THREE.MeshLambertMaterial({ color: 0xeeeee4 });
+let dodecahedronMaterial = new THREE.MeshNormalMaterial({
+  color: 0xeeeee4,
+});
 const dodecahedron = new THREE.Mesh(dodecahedronGeo, dodecahedronMaterial);
 dodecahedron.position.set(3, 0, 0);
 
@@ -58,7 +65,7 @@ const camera = new THREE.PerspectiveCamera(
 );
 camera.position.x = 0;
 camera.position.y = 0;
-camera.position.z = 5;
+camera.position.z = 7;
 scene.add(camera);
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
@@ -73,12 +80,15 @@ pointLight.position.x = 1;
 pointLight.position.y = 2;
 pointLight.position.z = 10;
 scene.add(pointLight);
+pointLight;
 
-const backLight = new THREE.PointLight(0xffffff, 1);
-backLight.position.x = 3;
-backLight.position.y = 2;
-backLight.position.z = -10;
-scene.add(backLight);
+const sphereSize = 1;
+const pointLightHelper = new THREE.PointLightHelper(
+  pointLight,
+  sphereSize,
+  0xff0000
+);
+scene.add(pointLightHelper);
 
 /* Orbit contorls */
 const controls = new OrbitControls(camera, canvas);
@@ -95,15 +105,26 @@ lightOne.add(pointLight.position, "y");
 lightOne.add(pointLight.position, "z");
 
 lightOne.open();
-
-const lightTwo = gui.addFolder("Light Two");
-
-lightTwo.add(backLight.position, "x");
-lightTwo.add(backLight.position, "y");
-lightTwo.add(backLight.position, "z");
-lightTwo.open();
+gui.add(dodecahedronMaterial, "wireframe").onChange(function (val) {
+  if (val === true) {
+    dodecahedronMaterial.wireframe = true;
+    sphereMaterial.wireframe = true;
+    torousMaterial.wireframe = true;
+  } else {
+    dodecahedronMaterial.wireframe = false;
+    sphereMaterial.wireframe = false;
+    torousMaterial.wireframe = false;
+  }
+});
+const clock = new THREE.Clock();
 
 function animate() {
+  const elapsedTime = clock.getElapsedTime();
+
+  sphere.rotation.y = 0.5 * elapsedTime;
+  dodecahedron.rotation.y = 0.5 * elapsedTime;
+  tourous.rotation.y = 0.5 * elapsedTime;
+
   requestAnimationFrame(animate);
   controls.update();
   renderer.render(scene, camera);
