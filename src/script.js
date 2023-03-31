@@ -8,17 +8,37 @@ const canvas = document.querySelector("canvas.webgl");
 // Scene
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xc2f2f0);
+const TextureLoader = new THREE.TextureLoader();
+let uvMap = TextureLoader.load("/imageMap/uv-map.png");
 
+let sphereNormalMap = TextureLoader.load("/normalMaps/normal-map-world.jpeg");
+let sphereImageMap = TextureLoader.load("/imageMap/earth-image-map.jpeg");
+let sphereDisplacementMap = TextureLoader.load(
+  "/imageMap/earth-displacement-map.jpg"
+);
+
+let torusNormalMap = TextureLoader.load("/normalMaps/torus-normal-map.jpeg");
+let dodecahedronNormalMap = TextureLoader.load(
+  "/normalMaps/shape-normal-map.jpeg"
+);
 // Objects
 const torousGeometry = new THREE.TorusGeometry(0.7, 0.2, 16, 100);
 let torousMaterial = new THREE.MeshToonMaterial({
   color: 0xeeeee4,
+  normalMap: torusNormalMap,
+  map: uvMap,
 });
 const tourous = new THREE.Mesh(torousGeometry, torousMaterial);
 
-const sphereGeo = new THREE.SphereGeometry(1, 32, 16);
-let sphereMaterial = new THREE.MeshLambertMaterial({
-  color: 0xff5733,
+const sphereGeo = new THREE.SphereGeometry(1, 64, 64);
+
+let sphereMaterial = new THREE.MeshPhongMaterial({
+  color: 0xffffff,
+  normalMap: sphereNormalMap,
+  shininess: 0,
+  displacementMap: sphereDisplacementMap,
+  displacementScale: 0.1,
+  map: sphereImageMap,
 });
 const sphere = new THREE.Mesh(sphereGeo, sphereMaterial);
 sphere.position.set(-3, 0, 0);
@@ -26,6 +46,7 @@ sphere.position.set(-3, 0, 0);
 const dodecahedronGeo = new THREE.DodecahedronGeometry(1);
 let dodecahedronMaterial = new THREE.MeshNormalMaterial({
   color: 0xeeeee4,
+  normalMap: dodecahedronNormalMap,
 });
 const dodecahedron = new THREE.Mesh(dodecahedronGeo, dodecahedronMaterial);
 dodecahedron.position.set(3, 0, 0);
@@ -34,6 +55,8 @@ let floorGeometry = new THREE.BoxGeometry(9, 1, 9);
 let material = new THREE.MeshLambertMaterial({ color: 0xffffff });
 const floor = new THREE.Mesh(floorGeometry, material);
 floor.position.set(0, -1.5, 0);
+
+//texure
 
 // Mesh
 scene.add(sphere);
