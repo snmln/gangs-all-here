@@ -5,7 +5,8 @@ import { GUI } from "dat.gui";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
-import { Mesh } from "three";
+import { Points } from "three";
+
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
 // Scene
@@ -78,6 +79,29 @@ scene.add(pinTwo);
 
 // Mesh
 scene.add(sphere);
+
+getCurve(position, position2);
+
+function getCurve(p1, p2) {
+  let v1 = new THREE.Vector3(p1.x, p1.y, p1.z);
+  let v2 = new THREE.Vector3(p2.x, p2.y, p2.z);
+
+  let points = [];
+
+  for (let i = 0; i < 20; i++) {
+    let p = new THREE.Vector3().lerpVectors(v1, v2, i / 20);
+
+    p.multiplyScalar(1 + 0.1 * Math.sin((Math.PI * i) / 20));
+    points.push(p);
+  }
+
+  let path = new THREE.CatmullRomCurve3(points);
+
+  const geometry = new THREE.TubeGeometry(path, 20, 0.01, 8, false);
+  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+  const mesh = new THREE.Mesh(geometry, material);
+  scene.add(mesh);
+}
 
 const sizes = {
   //This is not dynamic we will have to establish an event listener to listen for
