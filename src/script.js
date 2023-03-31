@@ -98,7 +98,7 @@ function getCurve(p1, p2) {
   let path = new THREE.CatmullRomCurve3(points);
 
   const geometry = new THREE.TubeGeometry(path, 20, 0.01, 8, false);
-  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+  const material = new THREE.MeshBasicMaterial({ color: 0xff00d9 });
   const mesh = new THREE.Mesh(geometry, material);
   scene.add(mesh);
 }
