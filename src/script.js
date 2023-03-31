@@ -2,14 +2,16 @@ import "./style.css";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GUI } from "dat.gui";
-
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+import { Mesh } from "three";
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
 // Scene
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xc2f2f0);
+// scene.background = new THREE.Color(0xc2f2f0);
 const TextureLoader = new THREE.TextureLoader();
-let uvMap = TextureLoader.load("/imageMap/uv-map.png");
 
 let sphereNormalMap = TextureLoader.load("/normalMaps/normal-map-world.jpeg");
 let sphereImageMap = TextureLoader.load("/imageMap/earth-image-map.jpeg");
@@ -17,57 +19,65 @@ let sphereDisplacementMap = TextureLoader.load(
   "/imageMap/earth-displacement-map.jpg"
 );
 
-let torusNormalMap = TextureLoader.load("/normalMaps/torus-normal-map.jpeg");
-let dodecahedronNormalMap = TextureLoader.load(
-  "/normalMaps/shape-normal-map.jpeg"
-);
 // Objects
-const torousGeometry = new THREE.TorusGeometry(0.7, 0.2, 16, 100);
-let torousMaterial = new THREE.MeshToonMaterial({
-  color: 0xeeeee4,
-  normalMap: torusNormalMap,
-  map: uvMap,
-});
-const tourous = new THREE.Mesh(torousGeometry, torousMaterial);
 
-const sphereGeo = new THREE.SphereGeometry(1, 64, 64);
+const sphereGeo = new THREE.SphereGeometry(3, 64, 64);
 
-let sphereMaterial = new THREE.MeshPhongMaterial({
+let sphereMaterial = new THREE.MeshStandardMaterial({
   color: 0xffffff,
   normalMap: sphereNormalMap,
   shininess: 0,
-  displacementMap: sphereDisplacementMap,
-  displacementScale: 0.1,
+  // displacementMap: sphereDisplacementMap,
+  // displacementScale: 0.1,
   map: sphereImageMap,
 });
 const sphere = new THREE.Mesh(sphereGeo, sphereMaterial);
-sphere.position.set(-3, 0, 0);
 
-const dodecahedronGeo = new THREE.DodecahedronGeometry(1);
-let dodecahedronMaterial = new THREE.MeshNormalMaterial({
-  color: 0xeeeee4,
-  normalMap: dodecahedronNormalMap,
-});
-const dodecahedron = new THREE.Mesh(dodecahedronGeo, dodecahedronMaterial);
-dodecahedron.position.set(3, 0, 0);
+//add pin
+const pin = new THREE.Mesh(
+  new THREE.SphereGeometry(0.1, 20, 30),
+  new THREE.MeshBasicMaterial({ color: 0xff0000 })
+);
 
-let floorGeometry = new THREE.BoxGeometry(9, 1, 9);
-let material = new THREE.MeshLambertMaterial({ color: 0xffffff });
-const floor = new THREE.Mesh(floorGeometry, material);
-floor.position.set(0, -1.5, 0);
+const pinTwo = new THREE.Mesh(
+  new THREE.SphereGeometry(0.1, 20, 30),
+  new THREE.MeshBasicMaterial({ color: 0xffffff })
+);
 
-//texure
+let ohio = {
+  lattitude: 39.9612,
+  longitude: -82.9988,
+};
+let insightCorp = {
+  lattitude: 33.4255,
+  longitude: -111.94,
+};
+
+function convertLongLatToCartesian(longitude, lattitude) {
+  let radius = 3;
+  var phi = (90 - lattitude) * (Math.PI / 180);
+  var theta = (longitude + 180) * (Math.PI / 180);
+
+  let x = -(radius * Math.sin(phi) * Math.cos(theta));
+  let z = radius * Math.sin(phi) * Math.sin(theta);
+  let y = radius * Math.cos(phi);
+  return { x, y, z };
+}
+
+let position = convertLongLatToCartesian(
+  insightCorp.longitude,
+  insightCorp.lattitude
+);
+let position2 = convertLongLatToCartesian(ohio.longitude, ohio.lattitude);
+
+pin.position.set(position.x, position.y, position.z);
+pinTwo.position.set(position2.x, position2.y, position2.z);
+
+scene.add(pin);
+scene.add(pinTwo);
 
 // Mesh
 scene.add(sphere);
-scene.add(dodecahedron);
-scene.add(tourous);
-scene.add(floor);
-
-// var geo = new THREE.EdgesGeometry(sphere.geometry); // or WireframeGeometry
-// var mat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
-// var wireframe = new THREE.LineSegments(geo, mat);
-// sphere.add(wireframe);
 
 const sizes = {
   //This is not dynamic we will have to establish an event listener to listen for
@@ -96,15 +106,44 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
+const renderScene = new RenderPass(scene, camera);
+const composer = new EffectComposer(renderer);
+composer.addPass(renderScene);
+
+// const bloomPass = new UnrealBloomPass(
+//   new THREE.Vector2(window.innerWidth, window.innerHeight),
+//   0.5,
+//   0,
+//   0
+// );
+
+// composer.addPass(bloomPass);
 // Lights
 
-const pointLight = new THREE.PointLight(0xffffff, 1);
-pointLight.position.x = 1;
-pointLight.position.y = 2;
-pointLight.position.z = 10;
+const pointLight = new THREE.PointLight(0xffffff, 1.5);
+pointLight.position.set(0, 0, 10);
 scene.add(pointLight);
-pointLight;
 
+const pointLight2 = new THREE.PointLight(0xffffff, 1.5);
+pointLight2.position.set(0, 10, 0);
+scene.add(pointLight2);
+
+const pointLight3 = new THREE.PointLight(0xffffff, 1.5);
+pointLight3.position.set(0, -10, 0);
+scene.add(pointLight3);
+
+const pointLight4 = new THREE.PointLight(0xffffff, 1.5);
+pointLight4.position.set(10, 0, 0);
+scene.add(pointLight4);
+
+const pointLight5 = new THREE.PointLight(0xffffff, 1.5);
+pointLight5.position.set(-10, 0, 0);
+scene.add(pointLight5);
+
+const pointLight6 = new THREE.PointLight(0xffffff, 1.5);
+pointLight6.position.set(0, 0, -10);
+
+scene.add(pointLight6);
 const sphereSize = 1;
 const pointLightHelper = new THREE.PointLightHelper(
   pointLight,
@@ -120,6 +159,7 @@ controls.enableDamping = true;
 /**
  * Renderer
  */
+
 //We need to instantiate an instance of WEBGL to render all of our elements.
 const gui = new GUI();
 const lightOne = gui.addFolder("Light One");
@@ -128,15 +168,11 @@ lightOne.add(pointLight.position, "y");
 lightOne.add(pointLight.position, "z");
 
 lightOne.open();
-gui.add(dodecahedronMaterial, "wireframe").onChange(function (val) {
+gui.add(sphereMaterial, "wireframe").onChange(function (val) {
   if (val === true) {
-    dodecahedronMaterial.wireframe = true;
     sphereMaterial.wireframe = true;
-    torousMaterial.wireframe = true;
   } else {
-    dodecahedronMaterial.wireframe = false;
     sphereMaterial.wireframe = false;
-    torousMaterial.wireframe = false;
   }
 });
 const clock = new THREE.Clock();
@@ -144,12 +180,12 @@ const clock = new THREE.Clock();
 function animate() {
   const elapsedTime = clock.getElapsedTime();
 
-  sphere.rotation.y = 0.5 * elapsedTime;
-  dodecahedron.rotation.y = 0.5 * elapsedTime;
-  tourous.rotation.y = 0.5 * elapsedTime;
+  // sphere.rotation.y = 0.5 * elapsedTime;
 
   requestAnimationFrame(animate);
   controls.update();
-  renderer.render(scene, camera);
+  // renderer.render(scene, camera);
+
+  composer.render(scene, camera);
 }
 animate();
