@@ -21,27 +21,52 @@ let sphereDisplacementMap = TextureLoader.load(
 );
 
 // Objects
+const atmosphereFragment = `
+varying vec3 vertexNormal;
 
+void main(){
+  float intensity = pow(0.6 - dot(vertexNormal, vec3(0.0,0.0,1.0)),2.0);
+ gl_FragColor = vec4(0.3, 0.6, 1.0, 1.0) * intensity;
+}`;
+
+const atmosphereVertex = `
+varying vec3 vertexNormal;
+
+void main(){
+  vertexNormal = normalize(normalMatrix * normal);
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+}`;
 const sphereGeo = new THREE.SphereGeometry(3, 64, 64);
+
+const atmosphereShader = new THREE.ShaderMaterial({
+  side: THREE.DoubleSide,
+  vertexShader: atmosphereVertex,
+  fragmentShader: atmosphereFragment,
+  blending: THREE.AdditiveBlending,
+  side: THREE.BackSide,
+});
+const atmosphere = new THREE.Mesh(sphereGeo, atmosphereShader);
+atmosphere.scale.set(1.2, 1.2, 1.2);
 
 let sphereMaterial = new THREE.MeshStandardMaterial({
   color: 0xffffff,
   normalMap: sphereNormalMap,
   shininess: 0,
-  // displacementMap: sphereDisplacementMap,
-  // displacementScale: 0.1,
+  displacementMap: sphereDisplacementMap,
+  displacementScale: 0.1,
   map: sphereImageMap,
 });
 const sphere = new THREE.Mesh(sphereGeo, sphereMaterial);
 
 //add pin
+scene.add(atmosphere);
 const pin = new THREE.Mesh(
-  new THREE.SphereGeometry(0.1, 20, 30),
+  new THREE.SphereGeometry(0.035, 20, 30),
   new THREE.MeshBasicMaterial({ color: 0xff0000 })
 );
 
 const pinTwo = new THREE.Mesh(
-  new THREE.SphereGeometry(0.1, 20, 30),
+  new THREE.SphereGeometry(0.035, 20, 30),
   new THREE.MeshBasicMaterial({ color: 0xffffff })
 );
 
@@ -53,9 +78,31 @@ let insightCorp = {
   lattitude: 33.4255,
   longitude: -111.94,
 };
+const tubeFragment = `
+varying vec2 vertexUV; 
+void main(){
+    gl_FragColor = vec4(vertexUV.x,0.,0.0,1.);
+}`;
+
+const tubeVertex = `
+varying vec2 vertexUV; 
+void main(){
+  vertexUV = uv;
+  gl_Position = projectionMatrix * modelViewMatrix *vec4(position,1);
+}`;
+
+const materialShader = new THREE.ShaderMaterial({
+  side: THREE.DoubleSide,
+  uniforms: {
+    time: { value: 0 },
+    resolution: { value: new THREE.Vector4() },
+  },
+  vertexShader: tubeVertex,
+  fragmentShader: tubeFragment,
+});
 
 function convertLongLatToCartesian(longitude, lattitude) {
-  let radius = 3;
+  let radius = 3.1;
   var phi = (90 - lattitude) * (Math.PI / 180);
   var theta = (longitude + 180) * (Math.PI / 180);
 
@@ -98,7 +145,7 @@ function getCurve(p1, p2) {
   let path = new THREE.CatmullRomCurve3(points);
 
   const geometry = new THREE.TubeGeometry(path, 20, 0.01, 8, false);
-  const material = new THREE.MeshBasicMaterial({ color: 0xff00d9 });
+  const material = materialShader;
   const mesh = new THREE.Mesh(geometry, material);
   scene.add(mesh);
 }
