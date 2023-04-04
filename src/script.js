@@ -4,8 +4,6 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GUI } from "dat.gui";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
-import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
-import { Points } from "three";
 
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
@@ -126,6 +124,7 @@ scene.add(pinTwo);
 
 // Mesh
 scene.add(sphere);
+const group = new THREE.Group();
 
 getCurve(position, position2);
 
@@ -147,9 +146,13 @@ function getCurve(p1, p2) {
   const geometry = new THREE.TubeGeometry(path, 20, 0.01, 8, false);
   const material = materialShader;
   const mesh = new THREE.Mesh(geometry, material);
-  scene.add(mesh);
+  group.add(mesh);
 }
 
+group.add(sphere);
+group.add(pin);
+group.add(pinTwo);
+scene.add(group);
 const sizes = {
   //This is not dynamic we will have to establish an event listener to listen for
   width: window.innerWidth,
@@ -165,7 +168,7 @@ const camera = new THREE.PerspectiveCamera(
   75,
   sizes.width / sizes.height,
   0.1,
-  100
+  1000
 );
 camera.position.x = 0;
 camera.position.y = 0;
@@ -181,14 +184,6 @@ const renderScene = new RenderPass(scene, camera);
 const composer = new EffectComposer(renderer);
 composer.addPass(renderScene);
 
-// const bloomPass = new UnrealBloomPass(
-//   new THREE.Vector2(window.innerWidth, window.innerHeight),
-//   0.5,
-//   0,
-//   0
-// );
-
-// composer.addPass(bloomPass);
 // Lights
 
 const pointLight = new THREE.PointLight(0xffffff, 1.5);
@@ -199,33 +194,33 @@ const pointLight2 = new THREE.PointLight(0xffffff, 1.5);
 pointLight2.position.set(0, 10, 0);
 scene.add(pointLight2);
 
-const pointLight3 = new THREE.PointLight(0xffffff, 1.5);
-pointLight3.position.set(0, -10, 0);
-scene.add(pointLight3);
+// const pointLight3 = new THREE.PointLight(0xffffff, 1.5);
+// pointLight3.position.set(0, -10, 0);
+// scene.add(pointLight3);
 
-const pointLight4 = new THREE.PointLight(0xffffff, 1.5);
-pointLight4.position.set(10, 0, 0);
-scene.add(pointLight4);
+// const pointLight4 = new THREE.PointLight(0xffffff, 1.5);
+// pointLight4.position.set(10, 0, 0);
+// scene.add(pointLight4);
 
-const pointLight5 = new THREE.PointLight(0xffffff, 1.5);
-pointLight5.position.set(-10, 0, 0);
-scene.add(pointLight5);
+// const pointLight5 = new THREE.PointLight(0xffffff, 1.5);
+// pointLight5.position.set(-10, 0, 0);
+// scene.add(pointLight5);
 
-const pointLight6 = new THREE.PointLight(0xffffff, 1.5);
-pointLight6.position.set(0, 0, -10);
+// const pointLight6 = new THREE.PointLight(0xffffff, 1.5);
+// pointLight6.position.set(0, 0, -10);
 
-scene.add(pointLight6);
-const sphereSize = 1;
-const pointLightHelper = new THREE.PointLightHelper(
-  pointLight,
-  sphereSize,
-  0xff0000
-);
-scene.add(pointLightHelper);
+// scene.add(pointLight6);
+// const sphereSize = 1;
+// const pointLightHelper = new THREE.PointLightHelper(
+//   pointLight,
+//   sphereSize,
+//   0xff0000
+// );
+// scene.add(pointLightHelper);
 
 /* Orbit contorls */
-const controls = new OrbitControls(camera, canvas);
-controls.enableDamping = true;
+// const controls = new OrbitControls(camera, canvas);
+// controls.enableDamping = true;
 
 /**
  * Renderer
@@ -246,17 +241,47 @@ gui.add(sphereMaterial, "wireframe").onChange(function (val) {
     sphereMaterial.wireframe = false;
   }
 });
-const clock = new THREE.Clock();
 
+const starGeometry = new THREE.BufferGeometry();
+const starMaterial = new THREE.PointsMaterial({ color: 0xffffff });
+
+const starVert = [];
+for (let i = 0; i < 1000; i++) {
+  const x = (Math.random() - 0.5) * 2000;
+  const y = (Math.random() - 0.5) * 2000;
+  const z = -Math.random() * 3000;
+  starVert.push(x, y, z);
+}
+starGeometry.setAttribute(
+  "position",
+  new THREE.Float32BufferAttribute(starVert, 3)
+);
+const stars = new THREE.Points(starGeometry, starMaterial);
+
+const highestLevelGroup = new THREE.Group();
+
+highestLevelGroup.add(group);
+highestLevelGroup.add(stars);
+
+scene.add(highestLevelGroup);
+const clock = new THREE.Clock();
+const mouse = {
+  x: undefined,
+  y: undefined,
+};
 function animate() {
   const elapsedTime = clock.getElapsedTime();
-
-  // sphere.rotation.y = 0.5 * elapsedTime;
-
+  group.rotation.y = 0.05 * elapsedTime;
   requestAnimationFrame(animate);
-  controls.update();
+  // controls.update();
   // renderer.render(scene, camera);
+  highestLevelGroup.rotation.y = mouse.x * 0.25;
 
   composer.render(scene, camera);
 }
 animate();
+
+addEventListener("mousemove", () => {
+  mouse.x = (event.clientX / innerWidth) * 2 - 1;
+  mouse.y = -(event.clietnY / innerHeight) * 2 + 1;
+});
