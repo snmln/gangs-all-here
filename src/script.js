@@ -145,8 +145,11 @@ function getCurve(p1, p2) {
   const geometry = new THREE.TubeGeometry(path, 20, 0.01, 8, false);
   const material = materialShader;
   const tubeMesh = new THREE.Mesh(geometry, material);
+  tubeMesh.name = "tubeMesh";
   group.add(tubeMesh);
 }
+pin.name = "pin";
+pinTwo.name = "pinTwo";
 
 group.add(sphere);
 group.add(pin);
@@ -265,6 +268,9 @@ document.getElementById("revertToEarth").onclick = function () {
   sphere.material = sphereMaterial;
   atmosphereShader.visible = true;
   sphere.material.wireframe = false;
+  scene.getObjectByName("tubeMesh").visible = true;
+  pin.material.visible = true;
+  pinTwo.material.visible = true;
 };
 
 document.getElementById("randomize").onclick = function () {
@@ -280,7 +286,5 @@ document.getElementById("randomize").onclick = function () {
   }
   // sphere.material = randomSpheres().sphere;
   window.requestAnimationFrame(animate);
-
-  // group.tubeMesh.material.visible = false;
-  console.log(sphere.material);
+  scene.getObjectByName("tubeMesh").visible = false;
 };
