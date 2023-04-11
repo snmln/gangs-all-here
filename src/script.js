@@ -144,8 +144,8 @@ function getCurve(p1, p2) {
 
   const geometry = new THREE.TubeGeometry(path, 20, 0.01, 8, false);
   const material = materialShader;
-  const mesh = new THREE.Mesh(geometry, material);
-  group.add(mesh);
+  const tubeMesh = new THREE.Mesh(geometry, material);
+  group.add(tubeMesh);
 }
 
 group.add(sphere);
@@ -220,10 +220,26 @@ const mouse = {
   x: undefined,
   y: undefined,
 };
+function setCameraPosition() {
+  if (screen.width < 640) {
+    camera.position.set(0, 4, 7);
+    atmosphere.position.set(0, -0.5, 0);
+  } else if (screen.width > 640) {
+    camera.position.set(-4, 0, 7);
+    atmosphere.position.set(0.5, 0, 0);
+  }
+}
 
 function animate() {
   const elapsedTime = clock.getElapsedTime();
+  setCameraPosition();
   group.rotation.y = 0.05 * elapsedTime;
+  window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    setCameraPosition();
+  });
   window.requestAnimationFrame(animate);
   // controls.update();
   highestLevelGroup.rotation.y = mouse.x * 0.2;
@@ -247,17 +263,24 @@ document.getElementById("wireFrameButton").onclick = function () {
 
 document.getElementById("revertToEarth").onclick = function () {
   sphere.material = sphereMaterial;
+  atmosphereShader.visible = true;
+  sphere.material.wireframe = false;
 };
 
 document.getElementById("randomize").onclick = function () {
-  // sphere.material = new THREE.MeshPhysicalMaterial({
-  //   metalness: 0.0,
-  //   roughness: 0.1,
-  //   clearcoat: 1.0,
-  //   normalMap: golfBallNormalMap,
-  //   // y scale is negated to compensate for normal map handedness.
-  //   clearcoatNormalScale: new THREE.Vector2(2.0, -2.0),
-  // });
-  sphere.material = randomSpheres().sphere;
-  console.log(randomSpheres());
+  pin.material.visible = false;
+  pinTwo.material.visible = false;
+
+  let randomizeSphere = randomSpheres();
+  if (randomizeSphere === "texture cube") {
+    scene.background = randomizeSphere.scene;
+    sphere.material = randomizeSphere.sphere;
+  } else {
+    sphere.material = randomizeSphere.sphere;
+  }
+  // sphere.material = randomSpheres().sphere;
+  window.requestAnimationFrame(animate);
+
+  // group.tubeMesh.material.visible = false;
+  console.log(sphere.material);
 };

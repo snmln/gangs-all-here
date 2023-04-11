@@ -22,16 +22,16 @@
 <body class="test-page">
     <!-- We need to provide three.js a Canvas to render its contents within -->
     <div class="">
-        <div class="w-1/2 absolute z-10 flex flex-col p-16 justify-center h-full">
-            <h1 class="text-white text-6xl font-bold pb-8">Three.js <br /> the Demo</h1>
-            <div>
-                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        <div class="lg:w-1/2 sm:w-full absolute z-10 flex flex-col p-16 justify-center lg:h-full sm:h-auto">
+            <h1 class="text-white text-6xl font-bold pb-8 text-center sm:text-left">Three.js <br /> the Demo</h1>
+            <div class="flex flex-col sm:inline-block">
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
                     id="wireFrameButton">
                     Wire frame
                 </button>
-                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
                     id="randomize">Randomize</button>
-                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
                     id="revertToEarth">Revert to Earth</button>
             </div>
         </div>
