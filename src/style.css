@@ -2,6 +2,8 @@
 {
     margin: 0;
     padding: 0;
+    font-family: 'Open Sans', sans-serif;
+
 }
 
 html,
@@ -17,4 +19,9 @@ body
     top: 0;
     left: 0;
     outline: none;
+}
+
+.text-container{
+    padding: 1rem;
+
 }

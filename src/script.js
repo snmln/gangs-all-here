@@ -4,9 +4,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GUI } from "dat.gui";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
-
+import { randomSpheres } from "./spheres";
 // Canvas
-const canvas = document.querySelector("canvas.webgl");
 // Scene
 const scene = new THREE.Scene();
 // scene.background = new THREE.Color(0xc2f2f0);
@@ -37,7 +36,6 @@ void main(){
 const sphereGeo = new THREE.SphereGeometry(3, 64, 64);
 
 const atmosphereShader = new THREE.ShaderMaterial({
-  side: THREE.DoubleSide,
   vertexShader: atmosphereVertex,
   fragmentShader: atmosphereFragment,
   blending: THREE.AdditiveBlending,
@@ -45,6 +43,7 @@ const atmosphereShader = new THREE.ShaderMaterial({
 });
 const atmosphere = new THREE.Mesh(sphereGeo, atmosphereShader);
 atmosphere.scale.set(1.2, 1.2, 1.2);
+atmosphere.position.set(0.5, 0, 0);
 
 let sphereMaterial = new THREE.MeshStandardMaterial({
   color: 0xffffff,
@@ -163,19 +162,20 @@ const sizes = {
  * Camera
  */
 // Base camera
+
+const canvasContainer = document.querySelector("#canvasContainer");
+
 //this camera we are establishing is what ALL our view will go through.
 const camera = new THREE.PerspectiveCamera(
   75,
   sizes.width / sizes.height,
-  0.1,
+  1,
   1000
 );
-camera.position.x = 0;
-camera.position.y = 0;
-camera.position.z = 7;
+camera.position.set(-4, 0, 7);
 scene.add(camera);
 const renderer = new THREE.WebGLRenderer({
-  canvas: canvas,
+  canvas: document.querySelector("canvas"),
 });
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -185,62 +185,13 @@ const composer = new EffectComposer(renderer);
 composer.addPass(renderScene);
 
 // Lights
-
 const pointLight = new THREE.PointLight(0xffffff, 1.5);
-pointLight.position.set(0, 0, 10);
+pointLight.position.set(-10, 0, 10);
 scene.add(pointLight);
 
 const pointLight2 = new THREE.PointLight(0xffffff, 1.5);
 pointLight2.position.set(0, 10, 0);
 scene.add(pointLight2);
-
-// const pointLight3 = new THREE.PointLight(0xffffff, 1.5);
-// pointLight3.position.set(0, -10, 0);
-// scene.add(pointLight3);
-
-// const pointLight4 = new THREE.PointLight(0xffffff, 1.5);
-// pointLight4.position.set(10, 0, 0);
-// scene.add(pointLight4);
-
-// const pointLight5 = new THREE.PointLight(0xffffff, 1.5);
-// pointLight5.position.set(-10, 0, 0);
-// scene.add(pointLight5);
-
-// const pointLight6 = new THREE.PointLight(0xffffff, 1.5);
-// pointLight6.position.set(0, 0, -10);
-
-// scene.add(pointLight6);
-// const sphereSize = 1;
-// const pointLightHelper = new THREE.PointLightHelper(
-//   pointLight,
-//   sphereSize,
-//   0xff0000
-// );
-// scene.add(pointLightHelper);
-
-/* Orbit contorls */
-// const controls = new OrbitControls(camera, canvas);
-// controls.enableDamping = true;
-
-/**
- * Renderer
- */
-
-//We need to instantiate an instance of WEBGL to render all of our elements.
-const gui = new GUI();
-const lightOne = gui.addFolder("Light One");
-lightOne.add(pointLight.position, "x");
-lightOne.add(pointLight.position, "y");
-lightOne.add(pointLight.position, "z");
-
-lightOne.open();
-gui.add(sphereMaterial, "wireframe").onChange(function (val) {
-  if (val === true) {
-    sphereMaterial.wireframe = true;
-  } else {
-    sphereMaterial.wireframe = false;
-  }
-});
 
 const starGeometry = new THREE.BufferGeometry();
 const starMaterial = new THREE.PointsMaterial({ color: 0xffffff });
@@ -249,7 +200,7 @@ const starVert = [];
 for (let i = 0; i < 1000; i++) {
   const x = (Math.random() - 0.5) * 2000;
   const y = (Math.random() - 0.5) * 2000;
-  const z = -Math.random() * 3000;
+  const z = -Math.random() * 3000 - 50;
   starVert.push(x, y, z);
 }
 starGeometry.setAttribute(
@@ -269,19 +220,44 @@ const mouse = {
   x: undefined,
   y: undefined,
 };
+
 function animate() {
   const elapsedTime = clock.getElapsedTime();
   group.rotation.y = 0.05 * elapsedTime;
-  requestAnimationFrame(animate);
+  window.requestAnimationFrame(animate);
   // controls.update();
-  // renderer.render(scene, camera);
-  highestLevelGroup.rotation.y = mouse.x * 0.25;
-
-  composer.render(scene, camera);
+  highestLevelGroup.rotation.y = mouse.x * 0.2;
+  highestLevelGroup.rotation.x = mouse.y * 0.2;
+  renderer.render(scene, camera);
 }
-animate();
 
 addEventListener("mousemove", () => {
   mouse.x = (event.clientX / innerWidth) * 2 - 1;
-  mouse.y = -(event.clietnY / innerHeight) * 2 + 1;
+  mouse.y = -(event.clientY / innerHeight) * 2 + 1;
 });
+
+animate();
+
+document.getElementById("wireFrameButton").onclick = function () {
+  sphere.material.wireframe = !sphere.material.wireframe;
+  sphereMaterial.wireframeLinewidth = 3;
+  // atmosphereShader.wireframe = !atmosphereShader.wireframe;
+  atmosphereShader.visible = !atmosphereShader.visible;
+};
+
+document.getElementById("revertToEarth").onclick = function () {
+  sphere.material = sphereMaterial;
+};
+
+document.getElementById("randomize").onclick = function () {
+  // sphere.material = new THREE.MeshPhysicalMaterial({
+  //   metalness: 0.0,
+  //   roughness: 0.1,
+  //   clearcoat: 1.0,
+  //   normalMap: golfBallNormalMap,
+  //   // y scale is negated to compensate for normal map handedness.
+  //   clearcoatNormalScale: new THREE.Vector2(2.0, -2.0),
+  // });
+  sphere.material = randomSpheres().sphere;
+  console.log(randomSpheres());
+};
