@@ -13,6 +13,12 @@ let sphereDisplacementMap = TextureLoader.load(
   "/imageMap/earth-displacement-map.jpg"
 );
 let earthLights = TextureLoader.load("/imageMap/earth_lights_2048.png");
+let poolBall = TextureLoader.load("/imageMap/pool_ball.png");
+
+let scratchTexture = TextureLoader.load(
+  "/normalMaps/Scratched_gold_01_1K_Normal.png.png"
+);
+
 const cubeLoader = new THREE.CubeTextureLoader();
 cubeLoader.setPath("imageMap/Bridge/");
 
@@ -25,7 +31,7 @@ let textureCube = cubeLoader.load([
   "negz.jpeg",
 ]);
 
-const sphereUvs = [
+export const sphereUvs = [
   {
     uv: "golf ball",
     sphere: new THREE.MeshPhysicalMaterial({
@@ -33,6 +39,7 @@ const sphereUvs = [
       roughness: 0.1,
       clearcoat: 1.0,
       normalMap: golfBallNormalMap,
+      clearcoatNormalMap: scratchTexture,
       clearcoatNormalScale: new THREE.Vector2(2.0, -2.0),
     }),
   },
@@ -61,12 +68,21 @@ const sphereUvs = [
     sphere: new THREE.MeshBasicMaterial({ envMap: textureCube }),
     scene: textureCube,
   },
+  {
+    uv: "pool ball",
+    sphere: new THREE.MeshLambertMaterial({
+      map: poolBall,
+    }),
+  },
 ];
 
-export function randomSpheres() {
-  console.log("first run", sphereUv);
-  const sphereUv = sphereUvs[Math.floor(Math.random() * sphereUvs.length)];
-  console.log("second run", sphereUv);
-
-  return sphereUv;
+export function randomSpheres(sphereArray) {
+  var copy = sphereArray.slice(0);
+  if (copy.length < 1) {
+    copy = sphereArray.slice(0);
+  }
+  var index = Math.floor(Math.random() * copy.length);
+  var UV = copy[index];
+  copy.splice(index, 1);
+  return UV;
 }

@@ -4,7 +4,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GUI } from "dat.gui";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
-import { randomSpheres } from "./spheres";
+import { randomSpheres, sphereUvs } from "./spheres";
 // Canvas
 // Scene
 const scene = new THREE.Scene();
@@ -277,7 +277,7 @@ document.getElementById("randomize").onclick = function () {
   pin.material.visible = false;
   pinTwo.material.visible = false;
 
-  let randomizeSphere = randomSpheres();
+  let randomizeSphere = randomSpheres(sphereUvs);
   if (randomizeSphere === "texture cube") {
     scene.background = randomizeSphere.scene;
     sphere.material = randomizeSphere.sphere;
