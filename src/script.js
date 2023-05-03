@@ -6,6 +6,10 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { Points } from "three";
+import {
+  CSS2DRenderer,
+  CSS2DObject,
+} from "three/examples/jsm/renderers/CSS2DRenderer.js";
 
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
@@ -13,6 +17,8 @@ const canvas = document.querySelector("canvas.webgl");
 const scene = new THREE.Scene();
 // scene.background = new THREE.Color(0xc2f2f0);
 const TextureLoader = new THREE.TextureLoader();
+// const labelRenderer = new CSS3DRenderer();
+const labelRenderer = new CSS2DRenderer();
 
 let sphereNormalMap = TextureLoader.load("/normalMaps/normal-map-world.jpeg");
 let sphereImageMap = TextureLoader.load("/imageMap/earth-image-map.jpeg");
@@ -84,7 +90,7 @@ void main(){
     gl_FragColor = vec4(vertexUV.x,0.,0.0,1.);
 }`;
 
-const tubeVertex = `
+const tubeVertex = `2
 varying vec2 vertexUV; 
 void main(){
   vertexUV = uv;
@@ -127,7 +133,7 @@ scene.add(pinTwo);
 // Mesh
 scene.add(sphere);
 
-getCurve(position, position2);
+// getCurve(position, position2);
 
 function getCurve(p1, p2) {
   let v1 = new THREE.Vector3(p1.x, p1.y, p1.z);
@@ -155,6 +161,32 @@ const sizes = {
   width: window.innerWidth,
   height: window.innerHeight,
 };
+labelRenderer.setSize(sizes.width, sizes.height);
+
+labelRenderer.domElement.style.pointerEvents = "none";
+const columbusPoint = document.querySelector("div.Columbus");
+const tempePoint = document.querySelector("div.Tempe");
+
+// const ColumbusPointLabel = new CSS3DObject(columbusPoint);
+// ColumbusPointLabel.scale.set(0.01, 0.01, 0.01);
+const ColumbusPointLabel = new CSS2DObject(columbusPoint);
+
+// ColumbusPointLabel.position.set(position2.x, position2.y, position2.z);
+ColumbusPointLabel.position.set(
+  position2.x + 0.05,
+  position2.y,
+  position2.z + 0.75
+);
+console.log(ColumbusPointLabel.position);
+// const TempePointLabel = new CSS3DObject(tempePoint);
+// TempePointLabel.scale.set(0.01, 0.01, 0.01);
+const TempePointLabel = new CSS2DObject(tempePoint);
+
+TempePointLabel.position.set(position.x + 0.05, position.y, position.z + 0.75);
+
+scene.add(ColumbusPointLabel, TempePointLabel);
+
+document.body.appendChild(labelRenderer.domElement);
 
 /**
  * Camera
@@ -180,16 +212,6 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 const renderScene = new RenderPass(scene, camera);
 const composer = new EffectComposer(renderer);
 composer.addPass(renderScene);
-
-// const bloomPass = new UnrealBloomPass(
-//   new THREE.Vector2(window.innerWidth, window.innerHeight),
-//   0.5,
-//   0,
-//   0
-// );
-
-// composer.addPass(bloomPass);
-// Lights
 
 const pointLight = new THREE.PointLight(0xffffff, 1.5);
 pointLight.position.set(0, 0, 10);
@@ -249,8 +271,10 @@ gui.add(sphereMaterial, "wireframe").onChange(function (val) {
 const clock = new THREE.Clock();
 
 function animate() {
-  const elapsedTime = clock.getElapsedTime();
+  camera.updateProjectionMatrix();
 
+  const elapsedTime = clock.getElapsedTime();
+  labelRenderer.render(scene, camera);
   // sphere.rotation.y = 0.5 * elapsedTime;
 
   requestAnimationFrame(animate);
