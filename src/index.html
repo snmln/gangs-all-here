@@ -20,9 +20,27 @@
 </head>
 
 <body class="test-page">
+
+
+
     <!-- We need to provide three.js a Canvas to render its contents within -->
     <div class="">
-        <div class="lg:w-1/2 sm:w-full absolute z-10 flex flex-col p-16 justify-center lg:h-full sm:h-auto">
+        <ul class="flex">
+            <li class="mr-6">
+                <a class="text-white hover:text-blue-800" href="#">Active</a>
+            </li>
+            <li class="mr-6">
+                <a class="text-white hover:text-blue-800" href="#">Link</a>
+            </li>
+            <li class="mr-6">
+                <a class="text-white hover:text-blue-800" href="#">Link</a>
+            </li>
+            <li class="mr-6">
+                <a class="text-white cursor-not-allowed" href="#">Disabled</a>
+            </li>
+        </ul>
+        <div class="lg:w-1/2 w-full absolute z-10 flex flex-col p-16 justify-center lg:h-full sm:h-auto md:w-full">
+
             <h1 class="text-white text-6xl font-bold pb-8 text-center sm:text-left">Three.js <br /> the Demo</h1>
             <div class="flex flex-col sm:inline-block">
                 <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
