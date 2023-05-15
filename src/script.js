@@ -79,7 +79,7 @@ let insightCorp = {
 const tubeFragment = `
 varying vec2 vertexUV; 
 void main(){
-    gl_FragColor = vec4(vertexUV.x,0.,0.0,1.);
+    gl_FragColor = vec4(1.0,0.0,1.0,1.0);
 }`;
 
 const tubeVertex = `
@@ -193,35 +193,6 @@ scene.add(pointLight);
 const pointLight2 = new THREE.PointLight(0xffffff, 1.5);
 pointLight2.position.set(0, 10, 0);
 scene.add(pointLight2);
-
-// const pointLight3 = new THREE.PointLight(0xffffff, 1.5);
-// pointLight3.position.set(0, -10, 0);
-// scene.add(pointLight3);
-
-// const pointLight4 = new THREE.PointLight(0xffffff, 1.5);
-// pointLight4.position.set(10, 0, 0);
-// scene.add(pointLight4);
-
-// const pointLight5 = new THREE.PointLight(0xffffff, 1.5);
-// pointLight5.position.set(-10, 0, 0);
-// scene.add(pointLight5);
-
-// const pointLight6 = new THREE.PointLight(0xffffff, 1.5);
-// pointLight6.position.set(0, 0, -10);
-
-// scene.add(pointLight6);
-// const sphereSize = 1;
-// const pointLightHelper = new THREE.PointLightHelper(
-//   pointLight,
-//   sphereSize,
-//   0xff0000
-// );
-// scene.add(pointLightHelper);
-
-/* Orbit contorls */
-// const controls = new OrbitControls(camera, canvas);
-// controls.enableDamping = true;
-
 /**
  * Renderer
  */
@@ -273,8 +244,6 @@ function animate() {
   const elapsedTime = clock.getElapsedTime();
   group.rotation.y = 0.05 * elapsedTime;
   requestAnimationFrame(animate);
-  // controls.update();
-  // renderer.render(scene, camera);
   highestLevelGroup.rotation.y = mouse.x * 0.25;
 
   composer.render(scene, camera);
