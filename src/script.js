@@ -4,11 +4,10 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GUI } from "dat.gui";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
-import { randomSpheres, sphereUvs } from "./spheres";
+import { nextSphere, sphereUvs } from "./spheres";
 // Canvas
 // Scene
 const scene = new THREE.Scene();
-// scene.background = new THREE.Color(0xc2f2f0);
 const TextureLoader = new THREE.TextureLoader();
 
 let sphereNormalMap = TextureLoader.load("/normalMaps/normal-map-world.jpeg");
@@ -244,7 +243,7 @@ function animate() {
     setCameraPosition();
   });
   window.requestAnimationFrame(animate);
-  // controls.update();
+
   highestLevelGroup.rotation.y = mouse.x * 0.2;
   highestLevelGroup.rotation.x = mouse.y * 0.2;
   renderer.render(scene, camera);
@@ -260,7 +259,7 @@ animate();
 document.getElementById("wireFrameButton").onclick = function () {
   sphere.material.wireframe = !sphere.material.wireframe;
   sphereMaterial.wireframeLinewidth = 3;
-  // atmosphereShader.wireframe = !atmosphereShader.wireframe;
+  atmosphereShader.wireframe = !atmosphereShader.wireframe;
   atmosphereShader.visible = !atmosphereShader.visible;
 };
 
@@ -268,23 +267,24 @@ document.getElementById("revertToEarth").onclick = function () {
   sphere.material = sphereMaterial;
   atmosphereShader.visible = true;
   sphere.material.wireframe = false;
+  atmosphereShader.wireframe = false;
   scene.getObjectByName("tubeMesh").visible = true;
   pin.material.visible = true;
   pinTwo.material.visible = true;
 };
 
-document.getElementById("randomize").onclick = function () {
+document.getElementById("nextSphere").onclick = function () {
   pin.material.visible = false;
   pinTwo.material.visible = false;
 
-  let randomizeSphere = randomSpheres(sphereUvs);
-  if (randomizeSphere === "texture cube") {
-    scene.background = randomizeSphere.scene;
-    sphere.material = randomizeSphere.sphere;
+  let sphereCycle = nextSphere(sphereUvs);
+  if (sphereCycle === "texture cube") {
+    scene.background = sphereCycle.scene;
+    sphere.material = sphereCycle.sphere;
   } else {
-    sphere.material = randomizeSphere.sphere;
+    sphere.material = sphereCycle.sphere;
   }
-  // sphere.material = randomSpheres().sphere;
+
   window.requestAnimationFrame(animate);
   scene.getObjectByName("tubeMesh").visible = false;
 };

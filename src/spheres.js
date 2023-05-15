@@ -75,14 +75,14 @@ export const sphereUvs = [
     }),
   },
 ];
+let count = 0;
 
-export function randomSpheres(sphereArray) {
-  var copy = sphereArray.slice(0);
-  if (copy.length < 1) {
-    copy = sphereArray.slice(0);
+export function nextSphere(sphereArray) {
+  const recievedSphere = sphereArray[count];
+  if (count < sphereArray.length - 1) {
+    count++;
+  } else if (count >= sphereArray.length - 1) {
+    count = 0;
   }
-  var index = Math.floor(Math.random() * copy.length);
-  var UV = copy[index];
-  copy.splice(index, 1);
-  return UV;
+  return recievedSphere;
 }
