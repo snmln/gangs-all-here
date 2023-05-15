@@ -19,5 +19,5 @@ npm run dev
 # Build for production in the dist/ directory
 npm run build
 ```
-# This project leverages the Three.js Starter
+## This project leverages the Three.js Starter
 Courtesy of Bruno Simon of https://threejs-journey.xyz/
