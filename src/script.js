@@ -41,9 +41,6 @@ camera.position.x = 0;
 camera.position.y = 0;
 camera.position.z = 2;
 
-// Addng Camera to scene
-scene.add(camera);
-
 /**
  * Renderer
  */
